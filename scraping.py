@@ -15,7 +15,6 @@ pd.options.display.max_colwidth = 50000
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 import string
-import pickle
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -28,6 +27,23 @@ nltk.download('punkt')
 nltk.download('wordnet')
 nltk.download('stopwords')
 nltk.download('punkt_tab')
+import subprocess
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+
+# Periksa apakah Google Chrome sudah ada, jika tidak, instal secara manual
+chrome_path = "/usr/bin/google-chrome"
+if not os.path.exists(chrome_path):
+    subprocess.run("wget -q -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb", shell=True)
+    subprocess.run("apt-get update && apt-get install -y /tmp/chrome.deb", shell=True)
+
+# Periksa apakah ChromeDriver sudah ada, jika tidak, instal
+chromedriver_path = "/usr/bin/chromedriver"
+if not os.path.exists(chromedriver_path):
+    subprocess.run("wget -q -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip", shell=True)
+    subprocess.run("unzip /tmp/chromedriver.zip -d /usr/bin", shell=True)
+    subprocess.run("chmod +x /usr/bin/chromedriver", shell=True)
+
 
 """2. Scraping Title & Image Urls"""
 
@@ -111,13 +127,13 @@ uluwatu_property = uluwatu_property[uluwatu_property['title'] != "Bingin Beach H
 # fungsi untuk scraping href yang berada di "https://www.bukitvista.com/property/"
 def scrape_property_links(url: str) -> pd.DataFrame:
     # Membuat instance dari Chrome WebDriver dengan konfigurasi khusus
-    option = webdriver.ChromeOptions()
-    option.add_argument("--start-maximized")  # Membuka jendela browser Chrome dalam mode layar penuh
-    option.add_argument("--headless")   # Menjalankan browser dalam mode tanpa antarmuka grafis
-    option.add_argument("--disable-gpu")  # Menonaktifkan akselerasi GPU
-    option.add_argument("--no-sandbox")   # Menonaktifkan sandbox untuk keamanan
-    option.add_argument("--remote-debugging-port=56905")   # Mengaktifkan debugging jarak jauh pada port 9230
-    driver = webdriver.Chrome(options=option)
+    options = Options()
+    options.add_argument("--headless")  # Mode headless untuk server
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+
+    service = Service("/usr/bin/chromedriver")  # Pastikan path sesuai
+    driver = webdriver.Chrome(service=service, options=options)
 
     # Memuat halaman
     driver.get(url)
