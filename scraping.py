@@ -31,19 +31,18 @@ import subprocess
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 
-# Periksa apakah Google Chrome sudah ada, jika tidak, instal secara manual
+# Instal Chrome jika belum ada
 chrome_path = "/usr/bin/google-chrome"
 if not os.path.exists(chrome_path):
     subprocess.run("wget -q -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb", shell=True)
     subprocess.run("apt-get update && apt-get install -y /tmp/chrome.deb", shell=True)
 
-# Periksa apakah ChromeDriver sudah ada, jika tidak, instal
-chromedriver_path = "/usr/bin/chromedriver"
+# Instal ChromeDriver jika belum ada
+chromedriver_path = "/home/adminuser/chromedriver"
 if not os.path.exists(chromedriver_path):
     subprocess.run("wget -q -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip", shell=True)
-    subprocess.run("unzip /tmp/chromedriver.zip -d /usr/bin", shell=True)
-    subprocess.run("chmod +x /usr/bin/chromedriver", shell=True)
-
+    subprocess.run("unzip /tmp/chromedriver.zip -d /home/adminuser", shell=True)
+    subprocess.run("chmod +x /home/adminuser/chromedriver", shell=True)
 
 """2. Scraping Title & Image Urls"""
 
@@ -132,7 +131,7 @@ def scrape_property_links(url: str) -> pd.DataFrame:
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    service = Service("/usr/bin/chromedriver")  # Pastikan path sesuai
+    service = Service("/home/adminuser/chromedriver")  # Pastikan path sesuai
     driver = webdriver.Chrome(service=service, options=options)
 
     # Memuat halaman
